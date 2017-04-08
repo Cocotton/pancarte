@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type door struct {
@@ -30,6 +32,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/addDoor", addDoor).Methods("POST")
+	router.HandleFunc("/getDoor/{doorID}", getDoor).Methods("GET")
 	http.ListenAndServe(":8080", router)
 }
 
@@ -52,4 +55,22 @@ func addDoor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+func getDoor(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	doorID := vars["doorID"]
+	var doorr door
+
+	s := session.Copy()
+	defer s.Close()
+
+	c := s.DB("pancarte").C("doors")
+
+	err := c.Find(bson.M{"id": doorID}).One(doorr)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(doorr)
+
 }
