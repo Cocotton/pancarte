@@ -22,7 +22,7 @@ type door struct {
 //AddDoor creates a new door in the mongo database
 func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	session := s.Copy()
-	defer s.Close()
+	defer session.Close()
 
 	newDoor := new(door)
 	decoder := json.NewDecoder(r.Body)
