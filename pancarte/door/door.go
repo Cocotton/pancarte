@@ -19,7 +19,8 @@ type door struct {
 	OwnerPhone  string `json:"ownerPhone"`
 }
 
-func addDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
+//AddDoor creates a new door in the mongo database
+func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	session := s.Copy()
 	defer s.Close()
 
@@ -39,7 +40,9 @@ func addDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 
 	w.WriteHeader(http.StatusCreated)
 }
-func getDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
+
+// GetDoor gets a door from the mongo database using the provided ID
+func GetDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	vars := mux.Vars(r)
 	doorID := vars["doorID"]
 	var result door

@@ -19,10 +19,10 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/addDoor", func(w http.ResponseWriter, r *http.Request) {
-		door.addDoor(w, r, s)
+		door.AddDoor(w, r, s)
 	}).Methods("POST")
 	router.HandleFunc("/getDoor/{doorID}", func(w http.ResponseWriter, r *http.Request) {
-		door.getDoor(w, r, s)
+		door.GetDoor(w, r, s)
 	}).Methods("GET")
 	http.ListenAndServe(":8080", router)
 }
