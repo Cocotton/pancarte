@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"reflect"
 	"strconv"
 
+	"github.com/cocotton/pancarte/pancarte/response"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -31,31 +31,30 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	newDoor := new(door)
 	err := json.NewDecoder(r.Body).Decode(&newDoor)
 	if err != nil {
-		log.Fatal(err)
+		response.ErrorWithJSON(w, "Incorrect body", http.StatusInternalServerError)
 	}
 
 	err = validateDoor(newDoor)
 	if err != nil {
-		log.Fatal(err)
+		response.ErrorWithJSON(w, err.Error(), http.StatusBadRequest)
 	}
 
-	newDoor.ID = getNextID(session)
+	newDoor.ID, err = getNextID(session)
+	if err != nil {
+		response.ErrorWithJSON(w, err.Error(), http.StatusInternalServerError)
+	}
 
 	c := session.DB("pancarte").C("doors")
 	err = c.Insert(newDoor)
 	if err != nil {
-		log.Fatal(err)
+		response.ErrorWithJSON(w, "Can't create the new door object in database", http.StatusInternalServerError)
+	} else {
+		response.ResponseWithJSON(w, []byte("Successfully created the new door"), http.StatusCreated)
 	}
-
-	w.WriteHeader(http.StatusCreated)
 }
 
 func validateDoor(door *door) error {
-	fmt.Println("In validateDoor")
-	fmt.Println(door)
 	r := reflect.ValueOf(door).Elem()
-	fmt.Println("---")
-	fmt.Println(r)
 
 	for i := 1; i < r.NumField(); i++ {
 		if r.Field(i).Len() == 0 {
@@ -65,7 +64,7 @@ func validateDoor(door *door) error {
 	return nil
 }
 
-func getNextID(s *mgo.Session) string {
+func getNextID(s *mgo.Session) (string, error) {
 	var result bson.M
 
 	c := s.DB("pancarte").C("counters")
@@ -73,9 +72,12 @@ func getNextID(s *mgo.Session) string {
 		Update:    bson.M{"$inc": bson.M{"counter": 1}},
 		ReturnNew: true,
 	}
-	_, _ = c.Find(bson.M{"_id": "doorid"}).Apply(change, &result)
+	_, err := c.Find(bson.M{"_id": "doorid"}).Apply(change, &result)
+	if err != nil {
+		return "", errors.New("Can't create new ID")
+	}
 
-	return strconv.FormatFloat(result["counter"].(float64), 'f', -1, 64)
+	return strconv.FormatFloat(result["counter"].(float64), 'f', -1, 64), nil
 }
 
 // GetDoor gets a door from the mongo database using the provided ID
