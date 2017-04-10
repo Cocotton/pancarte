@@ -2,9 +2,11 @@ package door
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -27,15 +29,17 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	defer session.Close()
 
 	newDoor := new(door)
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newDoor)
+	err := json.NewDecoder(r.Body).Decode(&newDoor)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	nextID := getNextID(session)
-	newDoor.ID = nextID
+	err = validateDoor(newDoor)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newDoor.ID = getNextID(session)
 
 	c := session.DB("pancarte").C("doors")
 	err = c.Insert(newDoor)
@@ -44,6 +48,21 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func validateDoor(door *door) error {
+	fmt.Println("In validateDoor")
+	fmt.Println(door)
+	r := reflect.ValueOf(door).Elem()
+	fmt.Println("---")
+	fmt.Println(r)
+
+	for i := 1; i < r.NumField(); i++ {
+		if r.Field(i).Len() == 0 {
+			return errors.New("Empty field: " + r.Type().Field(i).Name)
+		}
+	}
+	return nil
 }
 
 func getNextID(s *mgo.Session) string {
