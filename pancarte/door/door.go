@@ -3,7 +3,6 @@ package door
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -32,25 +31,28 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	err := json.NewDecoder(r.Body).Decode(&newDoor)
 	if err != nil {
 		response.ErrorWithJSON(w, "Incorrect body", http.StatusInternalServerError)
+		return
 	}
 
 	err = validateDoor(newDoor)
 	if err != nil {
 		response.ErrorWithJSON(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	newDoor.ID, err = getNextID(session)
 	if err != nil {
 		response.ErrorWithJSON(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	c := session.DB("pancarte").C("doors")
 	err = c.Insert(newDoor)
 	if err != nil {
 		response.ErrorWithJSON(w, "Can't create the new door object in database", http.StatusInternalServerError)
-	} else {
-		response.ResponseWithJSON(w, []byte("Successfully created the new door"), http.StatusCreated)
+		return
 	}
+	response.ResponseWithJSON(w, []byte("Successfully created the new door"), http.StatusCreated)
 }
 
 func validateDoor(door *door) error {
@@ -84,18 +86,23 @@ func getNextID(s *mgo.Session) (string, error) {
 func GetDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	vars := mux.Vars(r)
 	doorID := vars["doorID"]
-	var result door
+	var fetchedDoor door
 
 	session := s.Copy()
 	defer session.Close()
 
 	c := session.DB("pancarte").C("doors")
 
-	err := c.Find(bson.M{"id": doorID}).One(result)
+	err := c.Find(bson.M{"id": doorID}).One(&fetchedDoor)
 	if err != nil {
-		fmt.Println(err)
+		response.ErrorWithJSON(w, "Unable to find door with ID: "+doorID, http.StatusNotFound)
+		return
 	}
 
-	fmt.Println(result)
-
+	res, err := json.Marshal(fetchedDoor)
+	if err != nil {
+		response.ErrorWithJSON(w, "Door object malformated", http.StatusInternalServerError)
+		return
+	}
+	response.ResponseWithJSON(w, res, http.StatusOK)
 }
