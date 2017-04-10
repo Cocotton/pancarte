@@ -19,25 +19,26 @@ type door struct {
 	OwnerPhone  string `json:"ownerPhone"`
 }
 
-var session *mgo.Session
-
 func main() {
-	var err error
-	session, err = mgo.Dial("localhost")
+	s, err := mgo.Dial("localhost")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
+	defer s.Close()
+	s.SetMode(mgo.Monotonic, true)
 
 	router := mux.NewRouter()
-	router.HandleFunc("/addDoor", addDoor).Methods("POST")
-	router.HandleFunc("/getDoor/{doorID}", getDoor).Methods("GET")
+	router.HandleFunc("/addDoor", func(w http.ResponseWriter, r *http.Request) {
+		addDoor(w, r, s)
+	}).Methods("POST")
+	router.HandleFunc("/getDoor/{doorID}", func(w http.ResponseWriter, r *http.Request) {
+		getDoor(w, r, s)
+	}).Methods("GET")
 	http.ListenAndServe(":8080", router)
 }
 
-func addDoor(w http.ResponseWriter, r *http.Request) {
-	s := session.Copy()
+func addDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
+	session := s.Copy()
 	defer s.Close()
 
 	newDoor := new(door)
@@ -47,7 +48,7 @@ func addDoor(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	c := s.DB("pancarte").C("doors")
+	c := session.DB("pancarte").C("doors")
 
 	err = c.Insert(newDoor)
 	if err != nil {
@@ -56,15 +57,15 @@ func addDoor(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
-func getDoor(w http.ResponseWriter, r *http.Request) {
+func getDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	vars := mux.Vars(r)
 	doorID := vars["doorID"]
 	var doorr door
 
-	s := session.Copy()
-	defer s.Close()
+	session := s.Copy()
+	defer session.Close()
 
-	c := s.DB("pancarte").C("doors")
+	c := session.DB("pancarte").C("doors")
 
 	err := c.Find(bson.M{"id": doorID}).One(doorr)
 	if err != nil {
