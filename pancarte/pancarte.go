@@ -45,3 +45,7 @@ func (p *Pancarte) initRouter() {
 		door.GetDoor(w, r, p.DB)
 	}).Methods("GET")
 }
+
+func (p *Pancarte) run(port string) {
+	http.ListenAndServe(port, p.Router)
+}
