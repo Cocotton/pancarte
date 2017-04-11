@@ -13,6 +13,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Door is a struct containing all informations concerning a door
 type Door struct {
 	ID          string `json:"id"`
 	Address     string `json:"address"`
@@ -27,7 +28,7 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	session := s.Copy()
 	defer session.Close()
 
-	newDoor := new(door)
+	newDoor := new(Door)
 	err := json.NewDecoder(r.Body).Decode(&newDoor)
 	if err != nil {
 		response.ErrorWithJSON(w, "Incorrect body", http.StatusInternalServerError)
@@ -55,7 +56,7 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	response.ResponseWithJSON(w, []byte("Successfully created the new door"), http.StatusCreated)
 }
 
-func validateDoor(door *door) error {
+func validateDoor(door *Door) error {
 	r := reflect.ValueOf(door).Elem()
 
 	for i := 1; i < r.NumField(); i++ {
@@ -86,7 +87,7 @@ func getNextID(s *mgo.Session) (string, error) {
 func GetDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	vars := mux.Vars(r)
 	doorID := vars["doorID"]
-	var fetchedDoor door
+	var fetchedDoor Door
 
 	session := s.Copy()
 	defer session.Close()
