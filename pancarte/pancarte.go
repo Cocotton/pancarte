@@ -46,6 +46,7 @@ func (p *Pancarte) initRouter() {
 	}).Methods("GET")
 }
 
-func (p *Pancarte) run(port string) {
+// Run launch the http server
+func (p *Pancarte) Run(port string) {
 	http.ListenAndServe(port, p.Router)
 }
