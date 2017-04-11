@@ -13,7 +13,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type door struct {
+type Door struct {
 	ID          string `json:"id"`
 	Address     string `json:"address"`
 	Description string `json:"description"`
