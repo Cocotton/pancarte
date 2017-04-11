@@ -15,8 +15,17 @@ type Pancarte struct {
 	Router *mux.Router
 }
 
-// InitDB setups the initial DB connection and http routes
-func (p *Pancarte) InitDB(dbName string) {
+// Init creates a Pancarte object and then call the init functions
+func Init(dbName string) *Pancarte {
+	var p Pancarte
+
+	p.initDB(dbName)
+	p.initRouter()
+
+	return &p
+}
+
+func (p *Pancarte) initDB(dbName string) {
 	var err error
 
 	p.DB, err = mgo.Dial(dbName)
