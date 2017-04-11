@@ -23,6 +23,7 @@ func (p *Pancarte) InitDB(dbName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	p.DB.SetMode(mgo.Monotonic, true)
 }
 
 func (p *Pancarte) initRouter() {
