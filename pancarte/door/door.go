@@ -31,29 +31,29 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 	newDoor := new(Door)
 	err := json.NewDecoder(r.Body).Decode(&newDoor)
 	if err != nil {
-		response.ErrorWithJSON(w, "Incorrect body", http.StatusInternalServerError)
+		response.ErrorWithText(w, "Incorrect body", http.StatusInternalServerError)
 		return
 	}
 
 	err = validateDoor(newDoor)
 	if err != nil {
-		response.ErrorWithJSON(w, err.Error(), http.StatusBadRequest)
+		response.ErrorWithText(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	newDoor.ID, err = getNextID(session)
 	if err != nil {
-		response.ErrorWithJSON(w, err.Error(), http.StatusInternalServerError)
+		response.ErrorWithText(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	c := session.DB("pancarte").C("doors")
 	err = c.Insert(newDoor)
 	if err != nil {
-		response.ErrorWithJSON(w, "Can't create the new door object in database", http.StatusInternalServerError)
+		response.ErrorWithText(w, "Can't create the new door object in database", http.StatusInternalServerError)
 		return
 	}
-	response.ResponseWithJSON(w, []byte("Successfully created the new door"), http.StatusCreated)
+	response.SuccessWithJSON(w, []byte("Successfully created the new door"), http.StatusCreated)
 }
 
 func validateDoor(door *Door) error {
@@ -96,14 +96,14 @@ func GetDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 
 	err := c.Find(bson.M{"id": doorID}).One(&fetchedDoor)
 	if err != nil {
-		response.ErrorWithJSON(w, "Unable to find door with ID: "+doorID, http.StatusNotFound)
+		response.ErrorWithText(w, "Unable to find door with ID: "+doorID, http.StatusNotFound)
 		return
 	}
 
 	res, err := json.Marshal(fetchedDoor)
 	if err != nil {
-		response.ErrorWithJSON(w, "Door object malformated", http.StatusInternalServerError)
+		response.ErrorWithText(w, "Door object malformated", http.StatusInternalServerError)
 		return
 	}
-	response.ResponseWithJSON(w, res, http.StatusOK)
+	response.SuccessWithJSON(w, res, http.StatusOK)
 }
