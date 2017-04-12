@@ -53,7 +53,14 @@ func AddDoor(w http.ResponseWriter, r *http.Request, s *mgo.Session) {
 		response.ErrorWithText(w, "Can't create the new door object in database", http.StatusInternalServerError)
 		return
 	}
-	response.SuccessWithJSON(w, []byte("Successfully created the new door"), http.StatusCreated)
+
+	newDoorJSON, err := json.Marshal(newDoor)
+	if err != nil {
+		response.ErrorWithText(w, "New door object malformated", http.StatusInternalServerError)
+		return
+	}
+
+	response.SuccessWithJSON(w, newDoorJSON, http.StatusCreated)
 }
 
 func validateDoor(door *Door) error {
