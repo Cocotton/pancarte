@@ -3,8 +3,10 @@ package pancarte
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/cocotton/pancarte/pancarte/door"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2"
 )
@@ -40,5 +42,5 @@ func (p *Pancarte) InitRouter() {
 
 // Run launch the http server
 func (p *Pancarte) Run(port string) {
-	http.ListenAndServe(port, p.Router)
+	http.ListenAndServe(port, handlers.LoggingHandler(os.Stdout, p.Router))
 }
