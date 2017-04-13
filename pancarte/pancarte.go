@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/cocotton/pancarte/pancarte/authentication"
 	"github.com/cocotton/pancarte/pancarte/door"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -38,6 +39,7 @@ func (p *Pancarte) InitRouter() {
 	p.Router.HandleFunc("/getDoor/{doorID}", func(w http.ResponseWriter, r *http.Request) {
 		door.GetDoor(w, r, p.DB)
 	}).Methods("GET")
+	p.Router.HandleFunc("/token", authentication.SetToken).Methods("GET")
 }
 
 // Run launches the http server
