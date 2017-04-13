@@ -15,17 +15,8 @@ type Pancarte struct {
 	Router *mux.Router
 }
 
-// Init creates a Pancarte object and then call the init functions
-func Init(dbName string) *Pancarte {
-	var p Pancarte
-
-	p.initDB(dbName)
-	p.initRouter()
-
-	return &p
-}
-
-func (p *Pancarte) initDB(dbName string) {
+// InitDB initialize the connection with the database
+func (p *Pancarte) InitDB(dbName string) {
 	var err error
 
 	p.DB, err = mgo.Dial(dbName)
@@ -35,7 +26,8 @@ func (p *Pancarte) initDB(dbName string) {
 	p.DB.SetMode(mgo.Monotonic, true)
 }
 
-func (p *Pancarte) initRouter() {
+// InitRouter initialize the mux router and routes
+func (p *Pancarte) InitRouter() {
 	p.Router = mux.NewRouter()
 
 	p.Router.HandleFunc("/addDoor", func(w http.ResponseWriter, r *http.Request) {
