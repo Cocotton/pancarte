@@ -17,7 +17,7 @@ type Pancarte struct {
 	Router *mux.Router
 }
 
-// InitDB initialize the connection with the database
+// InitDB initializes the connection with the database
 func (p *Pancarte) InitDB(dbName string) {
 	var err error
 
@@ -28,7 +28,7 @@ func (p *Pancarte) InitDB(dbName string) {
 	p.DB.SetMode(mgo.Monotonic, true)
 }
 
-// InitRouter initialize the mux router and routes
+// InitRouter initializes the mux router and routes
 func (p *Pancarte) InitRouter() {
 	p.Router = mux.NewRouter()
 
@@ -40,7 +40,7 @@ func (p *Pancarte) InitRouter() {
 	}).Methods("GET")
 }
 
-// Run launch the http server
+// Run launches the http server
 func (p *Pancarte) Run(port string) {
 	http.ListenAndServe(port, handlers.LoggingHandler(os.Stdout, p.Router))
 }
