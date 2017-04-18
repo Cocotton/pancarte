@@ -40,6 +40,7 @@ func (p *Pancarte) InitRouter() {
 		door.GetDoor(w, r, p.DB)
 	}).Methods("GET")
 	p.Router.HandleFunc("/token", authentication.SetToken).Methods("GET")
+	p.Router.HandleFunc("/protected", authentication.Validate(authentication.ProtectedPage)).Methods("GET")
 }
 
 // Run launches the http server
