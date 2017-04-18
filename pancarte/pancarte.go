@@ -45,6 +45,13 @@ func (p *Pancarte) InitRouter() {
 	p.Router.HandleFunc("/logout", authentication.Logout).Methods("GET")
 }
 
+// CheckEnv checks if the required environment variables exist
+func (p *Pancarte) CheckEnv() {
+	if len(os.Getenv("PANCARTE_SECRET")) == 0 {
+		log.Fatal("Environment variable Pancarte_Secret is not set. Exiting.")
+	}
+}
+
 // Run launches the http server
 func (p *Pancarte) Run(port string) {
 	http.ListenAndServe(port, handlers.LoggingHandler(os.Stdout, p.Router))

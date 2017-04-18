@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/cocotton/pancarte/pancarte/response"
@@ -38,7 +39,7 @@ func SetToken(w http.ResponseWriter, r *http.Request, username string) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, _ := token.SignedString([]byte("secret"))
+	signedToken, _ := token.SignedString([]byte(os.Getenv("PANCARTE_SECRET")))
 
 	cookie := http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}
 	http.SetCookie(w, &cookie)
@@ -58,7 +59,7 @@ func Validate(protectedPage http.HandlerFunc) http.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected siging method")
 			}
-			return []byte("secret"), nil
+			return []byte(os.Getenv("PANCARTE_SECRET")), nil
 		})
 		if err != nil {
 			http.NotFound(w, r)
