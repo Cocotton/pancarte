@@ -41,6 +41,9 @@ func (p *Pancarte) InitRouter() {
 	}).Methods("GET")
 	p.Router.HandleFunc("/token", authentication.SetToken).Methods("GET")
 	p.Router.HandleFunc("/protected", authentication.Validate(authentication.ProtectedPage)).Methods("GET")
+	p.Router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		authentication.Login(w, r, p.DB)
+	}).Methods("POST")
 }
 
 // Run launches the http server
