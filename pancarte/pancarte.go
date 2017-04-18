@@ -33,17 +33,16 @@ func (p *Pancarte) InitDB(dbName string) {
 func (p *Pancarte) InitRouter() {
 	p.Router = mux.NewRouter()
 
-	p.Router.HandleFunc("/addDoor", func(w http.ResponseWriter, r *http.Request) {
+	p.Router.HandleFunc("/addDoor", authentication.Validate(func(w http.ResponseWriter, r *http.Request) {
 		door.AddDoor(w, r, p.DB)
-	}).Methods("POST")
+	})).Methods("POST")
 	p.Router.HandleFunc("/getDoor/{doorID}", func(w http.ResponseWriter, r *http.Request) {
 		door.GetDoor(w, r, p.DB)
 	}).Methods("GET")
-	p.Router.HandleFunc("/token", authentication.SetToken).Methods("GET")
-	p.Router.HandleFunc("/protected", authentication.Validate(authentication.ProtectedPage)).Methods("GET")
 	p.Router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		authentication.Login(w, r, p.DB)
 	}).Methods("POST")
+	p.Router.HandleFunc("/logout", authentication.Logout).Methods("GET")
 }
 
 // Run launches the http server

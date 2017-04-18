@@ -38,5 +38,7 @@ func Login(w http.ResponseWriter, r *http.Request, session *mgo.Session) {
 		response.ErrorWithText(w, "Password does not match", http.StatusForbidden)
 		return
 	}
-	response.SuccessWithJSON(w, []byte("Password matched"), http.StatusOK)
+
+	SetToken(w, r, l.Username)
+	response.SuccessWithJSON(w, []byte("User logged in"), http.StatusOK)
 }

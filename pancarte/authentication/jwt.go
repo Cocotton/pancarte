@@ -24,12 +24,12 @@ type Key int
 const MyKey Key = 0
 
 // SetToken bla
-func SetToken(w http.ResponseWriter, r *http.Request) {
+func SetToken(w http.ResponseWriter, r *http.Request, username string) {
 	expireToken := time.Now().Add(time.Hour * 1).Unix()
 	expireCookie := time.Now().Add(time.Hour * 1)
 
 	claims := Claims{
-		"myusername",
+		username,
 		jwt.StandardClaims{
 			ExpiresAt: expireToken,
 			Issuer:    "localhost:8080",
@@ -43,7 +43,6 @@ func SetToken(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}
 	http.SetCookie(w, &cookie)
 
-	response.SuccessWithJSON(w, []byte(signedToken), http.StatusOK)
 }
 
 // Validate bla
