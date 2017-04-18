@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/cocotton/pancarte/pancarte/response"
@@ -20,9 +19,11 @@ type login struct {
 // Login makes sure the user exists in the database and that its password match
 func Login(w http.ResponseWriter, r *http.Request, session *mgo.Session) {
 	l := login{}
+
 	err := json.NewDecoder(r.Body).Decode(&l)
 	if err != nil {
-		log.Fatal("Can't decode user data")
+		response.ErrorWithText(w, "Malformated username/password", http.StatusBadRequest)
+		return
 	}
 
 	fetchedUser := user.User{}
