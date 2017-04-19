@@ -1,6 +1,8 @@
 package pancarte
 
 import (
+	"log"
+
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2"
 )
@@ -9,4 +11,15 @@ import (
 type Pancarte struct {
 	DBSession *mgo.Session
 	Router    *mux.Router
+}
+
+// InitDB initializes
+func (p *Pancarte) InitDB(host string) {
+	var err error
+
+	p.DBSession, err = mgo.Dial(host)
+	if err != nil {
+		log.Fatal(err)
+	}
+	p.DBSession.SetMode(mgo.Monotonic, true)
 }
