@@ -19,7 +19,13 @@ func (p *Pancarte) InitDB(host string) {
 
 	p.DBSession, err = mgo.Dial(host)
 	if err != nil {
-		log.Fatal(err)
+		handleFatalInitError("Unable to initialize the connection to the databse.", err)
 	}
+	defer p.DBSession.Close()
+
 	p.DBSession.SetMode(mgo.Monotonic, true)
+}
+
+func handleFatalInitError(message string, err error) {
+	log.Fatalf(message+"\nError: %s", err)
 }
