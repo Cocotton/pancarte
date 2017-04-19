@@ -13,7 +13,7 @@ type Pancarte struct {
 	Router    *mux.Router
 }
 
-// InitDB initializes
+// InitDB initializes the connection to the database
 func (p *Pancarte) InitDB(host string) {
 	var err error
 
@@ -24,6 +24,11 @@ func (p *Pancarte) InitDB(host string) {
 	defer p.DBSession.Close()
 
 	p.DBSession.SetMode(mgo.Monotonic, true)
+}
+
+// InitRouter initializes the mux Router and its routes
+func (p *Pancarte) InitRouter() {
+	p.Router = mux.NewRouter()
 }
 
 func handleFatalInitError(message string, err error) {
