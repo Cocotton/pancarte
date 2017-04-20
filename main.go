@@ -1,11 +1,21 @@
 package main
 
-import "github.com/cocotton/pancarte/pancarte"
+import (
+	"net/http"
+	"os"
+
+	"github.com/cocotton/pancarte/pancarte"
+)
 
 func main() {
-	var p pancarte.Pancarte
-	p.CheckEnv()
-	p.InitDB("localhost")
+	p := pancarte.Pancarte{}
+
+	p.InitDB("localhost", "pancarte")
 	p.InitRouter()
-	p.Run(":8080")
+	p.SetJWTSecret(loadJWTSecret())
+	http.ListenAndServe(":8080", p.Router)
+}
+
+func loadJWTSecret() string {
+	return os.Getenv("PANCARTE_JWT_SECRET")
 }

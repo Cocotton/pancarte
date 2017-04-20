@@ -1,58 +1,80 @@
 package pancarte
 
 import (
+	"errors"
 	"log"
-	"net/http"
-	"os"
 
-	"github.com/cocotton/pancarte/pancarte/authentication"
-	"github.com/cocotton/pancarte/pancarte/door"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2"
 )
 
-// Pancarte structure is used to manage Pancarte
+// Pancarte holds all the information required by the app to run
 type Pancarte struct {
-	DB     *mgo.Session
-	Router *mux.Router
+	DBDoorCollection     string
+	DBDoorCounterID      string
+	DBUserCollection     string
+	DBCountersCollection string
+	DBName               string
+	DBSession            *mgo.Session
+	JWTSecret            string
+	Router               *mux.Router
 }
 
-// InitDB initializes the connection with the database
-func (p *Pancarte) InitDB(dbName string) {
+// InitDB initializes the connection to the database and its indexes
+func (p *Pancarte) InitDB(host string, dbName string) {
 	var err error
 
-	p.DB, err = mgo.Dial(dbName)
+	p.DBName = dbName
+	p.DBDoorCollection = "doors"
+	p.DBDoorCounterID = "doorid"
+	p.DBUserCollection = "users"
+	p.DBCountersCollection = "counters"
+	p.DBSession, err = mgo.Dial(host)
 	if err != nil {
-		log.Fatal(err)
+		handleFatalInitError("Unable to initialize the connection to the databse.", err)
 	}
-	p.DB.SetMode(mgo.Monotonic, true)
+
+	p.DBSession.SetMode(mgo.Monotonic, true)
+
+	p.initDoorIndex()
 }
 
-// InitRouter initializes the mux router and routes
+func (p *Pancarte) initDoorIndex() {
+	index := mgo.Index{
+		Key:        []string{"id"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+
+	c := p.DBSession.DB(p.DBName).C("doors")
+
+	err := c.EnsureIndex(index)
+	if err != nil {
+		handleFatalInitError("Can ensure the doors collection indexes.", err)
+	}
+}
+
+// InitRouter initializes the mux Router and its routes
 func (p *Pancarte) InitRouter() {
 	p.Router = mux.NewRouter()
 
-	p.Router.HandleFunc("/addDoor", authentication.Validate(func(w http.ResponseWriter, r *http.Request) {
-		door.AddDoor(w, r, p.DB)
-	})).Methods("POST")
-	p.Router.HandleFunc("/getDoor/{doorID}", func(w http.ResponseWriter, r *http.Request) {
-		door.GetDoor(w, r, p.DB)
-	}).Methods("GET")
-	p.Router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		authentication.Login(w, r, p.DB)
-	}).Methods("POST")
-	p.Router.HandleFunc("/logout", authentication.Logout).Methods("GET")
+	p.Router.HandleFunc("/addDoor", p.validateJWTHandler(p.addDoorHandler)).Methods("POST")
+	p.Router.HandleFunc("/getDoor/{doorID}", p.getDoorHandler).Methods("GET")
+	p.Router.HandleFunc("/login", p.loginHandler).Methods("POST")
+	p.Router.HandleFunc("/logout", p.logoutHandler).Methods("GET")
 }
 
-// CheckEnv checks if the required environment variables exist
-func (p *Pancarte) CheckEnv() {
-	if len(os.Getenv("PANCARTE_SECRET")) == 0 {
-		log.Fatal("Environment variable Pancarte_Secret is not set. Exiting.")
+// SetJWTSecret sets the JWT secrets in the object
+func (p *Pancarte) SetJWTSecret(secret string) {
+	if len(secret) == 0 {
+		err := errors.New("JWT Secret is empty")
+		handleFatalInitError("", err)
 	}
+	p.JWTSecret = secret
 }
 
-// Run launches the http server
-func (p *Pancarte) Run(port string) {
-	http.ListenAndServe(port, handlers.LoggingHandler(os.Stdout, p.Router))
+func handleFatalInitError(message string, err error) {
+	log.Fatalf(message+"\nError: %s", err)
 }
