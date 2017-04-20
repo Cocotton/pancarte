@@ -30,8 +30,8 @@ func MongoGetNextID(session *mgo.Session, db string, collection string, objectID
 	return strconv.FormatFloat(result["counter"].(float64), 'f', -1, 64), nil
 }
 
-// ErrorLogger logs an error and return an HTTP error code to the user
-func ErrorLogger(w http.ResponseWriter, err error, message string, code int) {
+// ErrorWithText logs an error and return an HTTP error code to the user
+func ErrorWithText(w http.ResponseWriter, err error, message string, code int) {
 	log.Println(message)
 	log.Println(err)
 	w.Header().Set("Content-Type", "text/plain")
@@ -40,6 +40,8 @@ func ErrorLogger(w http.ResponseWriter, err error, message string, code int) {
 }
 
 // SuccessJSONLogger returns a message and HTTP code to the user upon successful actions
-func SuccessJSONLogger() {
-
+func SuccessJSONLogger(w http.ResponseWriter, message string, code int) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(code)
+	w.Write([]byte(message))
 }
