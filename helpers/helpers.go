@@ -36,7 +36,7 @@ func ErrorWithText(w http.ResponseWriter, err error, message string, code int) {
 	log.Println(err)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(code)
-	w.Write([]byte("An error happened."))
+	w.Write([]byte(message))
 }
 
 // SuccessJSONLogger returns a message and HTTP code to the user upon successful actions
