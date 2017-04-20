@@ -24,7 +24,7 @@ func (p *Pancarte) addDoorHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = door.ValidateDoor(&newDoor)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "Some fields are missing in the new Door.", http.StatusBadRequest)
+		helpers.ErrorWithText(w, err, "Some fields are missing. "+err.Error(), http.StatusBadRequest)
 		return
 	}
 

@@ -21,7 +21,7 @@ func ValidateDoor(door *Door) error {
 
 	for i := 1; i < r.NumField(); i++ {
 		if r.Field(i).Len() == 0 {
-			return errors.New("Empty field: " + r.Type().Field(i).Name)
+			return errors.New("Empty fields: " + r.Type().Field(i).Name)
 		}
 	}
 	return nil
