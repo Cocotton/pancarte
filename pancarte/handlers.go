@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/cocotton/pancarte/door"
 	"github.com/cocotton/pancarte/helpers"
+	"github.com/cocotton/pancarte/user"
 	"github.com/gorilla/mux"
 )
 
@@ -67,4 +70,34 @@ func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.SuccessJSONLogger(w, string(res), http.StatusOK)
+}
+
+func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
+	loginInfo := user.User{}
+
+	err := json.NewDecoder(r.Body).Decode(&loginInfo)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "Malformed username/password", http.StatusBadRequest)
+		return
+	}
+
+	session := p.DBSession.Copy()
+	defer session.Close()
+
+	fetchedUser := user.User{}
+	collection := session.DB(p.DBName).C(p.DBUserCollection)
+	err = collection.Find(bson.M{"username": loginInfo.Username}).One(&fetchedUser)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "1Username/Password mismatch", http.StatusNotFound)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(fetchedUser.Password), []byte(loginInfo.Password)); err != nil {
+		helpers.ErrorWithText(w, err, "Username/Password mismatch", http.StatusForbidden)
+		return
+	}
+
+	//SetToken(w, r, l.Username)
+	helpers.SuccessJSONLogger(w, "User logged in", http.StatusOK)
+
 }

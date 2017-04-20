@@ -11,6 +11,7 @@ import (
 type Pancarte struct {
 	DBDoorCollection     string
 	DBDoorCounterID      string
+	DBUserCollection     string
 	DBCountersCollection string
 	DBName               string
 	DBSession            *mgo.Session
@@ -24,6 +25,7 @@ func (p *Pancarte) InitDB(host string, dbName string) {
 	p.DBName = dbName
 	p.DBDoorCollection = "doors"
 	p.DBDoorCounterID = "doorid"
+	p.DBUserCollection = "users"
 	p.DBCountersCollection = "counters"
 	p.DBSession, err = mgo.Dial(host)
 	if err != nil {
@@ -58,6 +60,7 @@ func (p *Pancarte) InitRouter() {
 
 	p.Router.HandleFunc("/addDoor", p.addDoorHandler)
 	p.Router.HandleFunc("/getDoor/{doorID}", p.getDoorHandler)
+	p.Router.HandleFunc("/login", p.loginHandler)
 }
 
 func handleFatalInitError(message string, err error) {
