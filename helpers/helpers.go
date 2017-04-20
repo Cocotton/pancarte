@@ -2,6 +2,8 @@ package helpers
 
 import (
 	"errors"
+	"log"
+	"net/http"
 	"strconv"
 
 	mgo "gopkg.in/mgo.v2"
@@ -26,4 +28,18 @@ func MongoGetNextID(session *mgo.Session, db string, collection string, objectID
 	}
 
 	return strconv.FormatFloat(result["counter"].(float64), 'f', -1, 64), nil
+}
+
+// ErrorLogger logs an error and return an HTTP error code to the user
+func ErrorLogger(w http.ResponseWriter, err error, message string, code int) {
+	log.Println(message)
+	log.Println(err)
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(code)
+	w.Write([]byte("An error happened."))
+}
+
+// SuccessJSONLogger returns a message and HTTP code to the user upon successful actions
+func SuccessJSONLogger() {
+
 }
