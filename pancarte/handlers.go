@@ -8,6 +8,7 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/cocotton/pancarte/authentication"
 	"github.com/cocotton/pancarte/door"
 	"github.com/cocotton/pancarte/helpers"
 	"github.com/cocotton/pancarte/user"
@@ -88,7 +89,7 @@ func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 	collection := session.DB(p.DBName).C(p.DBUserCollection)
 	err = collection.Find(bson.M{"username": loginInfo.Username}).One(&fetchedUser)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "1Username/Password mismatch", http.StatusNotFound)
+		helpers.ErrorWithText(w, err, "Username/Password mismatch", http.StatusNotFound)
 		return
 	}
 
@@ -97,7 +98,7 @@ func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//SetToken(w, r, l.Username)
+	authentication.CreateJWTToken(w, r, fetchedUser.Username, p.JWTSecret)
 	helpers.SuccessJSONLogger(w, "User logged in", http.StatusOK)
 
 }

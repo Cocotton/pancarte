@@ -1,6 +1,7 @@
 package pancarte
 
 import (
+	"errors"
 	"log"
 
 	"github.com/gorilla/mux"
@@ -15,6 +16,7 @@ type Pancarte struct {
 	DBCountersCollection string
 	DBName               string
 	DBSession            *mgo.Session
+	JWTSecret            string
 	Router               *mux.Router
 }
 
@@ -61,6 +63,15 @@ func (p *Pancarte) InitRouter() {
 	p.Router.HandleFunc("/addDoor", p.addDoorHandler).Methods("POST")
 	p.Router.HandleFunc("/getDoor/{doorID}", p.getDoorHandler).Methods("GET")
 	p.Router.HandleFunc("/login", p.loginHandler).Methods("POST")
+}
+
+// SetJWTSecret sets the JWT secrets in the object
+func (p *Pancarte) SetJWTSecret(secret string) {
+	if len(secret) == 0 {
+		err := errors.New("JWT Secret is empty")
+		handleFatalInitError("", err)
+	}
+	p.JWTSecret = secret
 }
 
 func handleFatalInitError(message string, err error) {
