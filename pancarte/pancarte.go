@@ -29,7 +29,6 @@ func (p *Pancarte) InitDB(host string, dbName string) {
 	if err != nil {
 		handleFatalInitError("Unable to initialize the connection to the databse.", err)
 	}
-	defer p.DBSession.Close()
 
 	p.DBSession.SetMode(mgo.Monotonic, true)
 
