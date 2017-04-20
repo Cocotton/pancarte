@@ -98,7 +98,8 @@ func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authentication.CreateJWTToken(w, r, fetchedUser.Username, p.JWTSecret)
+	cookie := authentication.CreateJWTCookie(fetchedUser.Username, p.JWTSecret)
+	http.SetCookie(w, cookie)
 	helpers.SuccessJSONLogger(w, "User logged in", http.StatusOK)
 
 }

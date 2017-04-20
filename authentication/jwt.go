@@ -13,8 +13,8 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// CreateJWTToken will create the JWT and add it in a cookie
-func CreateJWTToken(w http.ResponseWriter, r *http.Request, username string, jwtSecret string) {
+// CreateJWTCookie will create the JWT and return cookie containing it
+func CreateJWTCookie(username string, jwtSecret string) *http.Cookie {
 	expireToken := time.Now().Add(time.Hour * 1).Unix()
 	expireCookie := time.Now().Add(time.Hour * 1)
 
@@ -30,6 +30,5 @@ func CreateJWTToken(w http.ResponseWriter, r *http.Request, username string, jwt
 
 	signedToken, _ := token.SignedString([]byte(jwtSecret))
 
-	cookie := http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}
-	http.SetCookie(w, &cookie)
+	return &http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}
 }
