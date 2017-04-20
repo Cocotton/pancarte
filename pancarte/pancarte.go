@@ -58,6 +58,7 @@ func (p *Pancarte) InitRouter() {
 	p.Router = mux.NewRouter()
 
 	p.Router.HandleFunc("/addDoor", p.addDoorHandler)
+	p.Router.HandleFunc("/getDoor/{doorID}", p.getDoorHandler)
 }
 
 func handleFatalInitError(message string, err error) {
