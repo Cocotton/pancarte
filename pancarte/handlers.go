@@ -3,6 +3,7 @@ package pancarte
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -101,6 +102,11 @@ func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie := authentication.CreateJWTCookie(fetchedUser.Username, p.JWTSecret)
 	http.SetCookie(w, cookie)
 	helpers.SuccessJSONLogger(w, "User logged in", http.StatusOK)
+}
+
+func (p *Pancarte) logoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{Name: "Auth", Value: "none", Expires: time.Now()})
+	helpers.SuccessJSONLogger(w, "User logged out", http.StatusOK)
 }
 
 func (p *Pancarte) validateJWTHandler(protectedPage http.HandlerFunc) http.HandlerFunc {
