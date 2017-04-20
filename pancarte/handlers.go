@@ -101,5 +101,28 @@ func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie := authentication.CreateJWTCookie(fetchedUser.Username, p.JWTSecret)
 	http.SetCookie(w, cookie)
 	helpers.SuccessJSONLogger(w, "User logged in", http.StatusOK)
+}
 
+func (p *Pancarte) validateJWTHandler(protectedPage http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("Auth")
+		if err != nil {
+			helpers.ErrorWithText(w, err, "User not logged in", http.StatusForbidden)
+			return
+		}
+
+		token, err := authentication.GetJWT(*cookie, p.JWTSecret)
+		if err != nil {
+			helpers.ErrorWithText(w, err, "JWT is not valid", http.StatusForbidden)
+		}
+
+		claims, err := authentication.GetJWTClaims(token)
+		if err != nil {
+			helpers.ErrorWithText(w, err, "Something went wrong", http.StatusInternalServerError)
+		}
+
+		context := authentication.GetContextWithClaims(r, claims)
+
+		protectedPage(w, r.WithContext(context))
+	})
 }

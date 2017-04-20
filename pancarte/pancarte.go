@@ -60,7 +60,7 @@ func (p *Pancarte) initDoorIndex() {
 func (p *Pancarte) InitRouter() {
 	p.Router = mux.NewRouter()
 
-	p.Router.HandleFunc("/addDoor", p.addDoorHandler).Methods("POST")
+	p.Router.HandleFunc("/addDoor", p.validateJWTHandler(p.addDoorHandler)).Methods("POST")
 	p.Router.HandleFunc("/getDoor/{doorID}", p.getDoorHandler).Methods("GET")
 	p.Router.HandleFunc("/login", p.loginHandler).Methods("POST")
 }
