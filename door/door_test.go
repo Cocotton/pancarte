@@ -12,7 +12,7 @@ func TestValidateDoor(t *testing.T) {
 	var validateDoorTests = []struct {
 		door        *Door
 		expected    error
-		expectedErr bool
+		expectError bool
 	}{
 		{&Door{"1", "1 Road", "House", "500$", "John Smith", "123-456-7890"}, nil, false},
 		{&Door{"", "1 Road", "House", "500$", "John Smith", "123-456-7890"}, nil, false},
@@ -21,7 +21,7 @@ func TestValidateDoor(t *testing.T) {
 
 	for _, test := range validateDoorTests {
 		actual := ValidateDoor(test.door)
-		if test.expectedErr {
+		if test.expectError {
 			assert.Error(actual, "Expected an error. None was returned.")
 		} else {
 			assert.Equal(nil, actual, "Did not expected error. Received one.")
