@@ -20,7 +20,7 @@ type key int
 const jwtClaimsKey key = 0
 
 // CreateJWTCookie will create the JWT and return cookie containing it
-func CreateJWTCookie(username string, jwtSecret string) *http.Cookie {
+func CreateJWTCookie(username string, jwtSecret string) (*http.Cookie, error) {
 	expireToken := time.Now().Add(time.Hour * 72).Unix()
 	expireCookie := time.Now().Add(time.Hour * 72)
 
@@ -34,9 +34,12 @@ func CreateJWTCookie(username string, jwtSecret string) *http.Cookie {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, _ := token.SignedString([]byte(jwtSecret))
+	signedToken, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return nil, errors.New("Can't sign JWT")
+	}
 
-	return &http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}
+	return &http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}, nil
 }
 
 // GetJWT validates and returns a JWT
