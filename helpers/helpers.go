@@ -39,8 +39,8 @@ func ErrorWithText(w http.ResponseWriter, err error, message string, code int) {
 	w.Write([]byte(message))
 }
 
-// SuccessJSONLogger returns a message and HTTP code to the user upon successful actions
-func SuccessJSONLogger(w http.ResponseWriter, message string, code int) {
+// SuccessWithJSON returns a message and HTTP code to the user upon successful actions
+func SuccessWithJSON(w http.ResponseWriter, message string, code int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	w.Write([]byte(message))
