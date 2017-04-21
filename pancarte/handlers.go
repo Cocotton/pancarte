@@ -46,7 +46,7 @@ func (p *Pancarte) addDoorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.SuccessJSONLogger(w, "Succesfully created door with id: "+newDoor.ID, http.StatusCreated)
+	helpers.SuccessWithJSON(w, "Succesfully created door with id: "+newDoor.ID, http.StatusCreated)
 }
 
 func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +71,7 @@ func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.SuccessJSONLogger(w, string(res), http.StatusOK)
+	helpers.SuccessWithJSON(w, string(res), http.StatusOK)
 }
 
 func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -101,12 +101,12 @@ func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	cookie := authentication.CreateJWTCookie(fetchedUser.Username, p.JWTSecret)
 	http.SetCookie(w, cookie)
-	helpers.SuccessJSONLogger(w, "User logged in", http.StatusOK)
+	helpers.SuccessWithJSON(w, "User logged in", http.StatusOK)
 }
 
 func (p *Pancarte) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{Name: "Auth", Value: "none", Expires: time.Now()})
-	helpers.SuccessJSONLogger(w, "User logged out", http.StatusOK)
+	helpers.SuccessWithJSON(w, "User logged out", http.StatusOK)
 }
 
 func (p *Pancarte) validateJWTHandler(protectedPage http.HandlerFunc) http.HandlerFunc {
