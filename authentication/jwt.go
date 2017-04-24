@@ -20,7 +20,13 @@ type key int
 const jwtClaimsKey key = 0
 
 // CreateJWTCookie will create the JWT and return cookie containing it
-func CreateJWTCookie(username string, jwtSecret string) *http.Cookie {
+func CreateJWTCookie(username string, jwtSecret string) (*http.Cookie, error) {
+	if len(username) == 0 {
+		return nil, errors.New("Username is empty")
+	} else if len(jwtSecret) == 0 {
+		return nil, errors.New("Secret is empty")
+	}
+
 	expireToken := time.Now().Add(time.Hour * 72).Unix()
 	expireCookie := time.Now().Add(time.Hour * 72)
 
@@ -34,9 +40,12 @@ func CreateJWTCookie(username string, jwtSecret string) *http.Cookie {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, _ := token.SignedString([]byte(jwtSecret))
+	signedToken, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return nil, errors.New("Can't sign JWT")
+	}
 
-	return &http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}
+	return &http.Cookie{Name: "Auth", Value: signedToken, Expires: expireCookie, HttpOnly: true}, nil
 }
 
 // GetJWT validates and returns a JWT
@@ -48,10 +57,8 @@ func GetJWT(cookie http.Cookie, jwtSecret string) (*jwt.Token, error) {
 		return []byte(jwtSecret), nil
 	})
 
-	if err != nil {
-		return nil, err
-	} else if !token.Valid {
-		return nil, errors.New("The JWT fetched from the provided cookie is not valid")
+	if !token.Valid {
+		return nil, errors.New("The JWT is not valid. " + err.Error())
 	}
 
 	return token, nil

@@ -94,12 +94,16 @@ func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(fetchedUser.Password), []byte(loginInfo.Password)); err != nil {
+	if err = bcrypt.CompareHashAndPassword([]byte(fetchedUser.Password), []byte(loginInfo.Password)); err != nil {
 		helpers.ErrorWithText(w, err, "Username/Password mismatch", http.StatusForbidden)
 		return
 	}
 
-	cookie := authentication.CreateJWTCookie(fetchedUser.Username, p.JWTSecret)
+	cookie, err := authentication.CreateJWTCookie(fetchedUser.Username, p.JWTSecret)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "Something went wrong", http.StatusInternalServerError)
+	}
+
 	http.SetCookie(w, cookie)
 	helpers.SuccessWithJSON(w, "User logged in", http.StatusOK)
 }
