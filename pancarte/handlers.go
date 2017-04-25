@@ -75,7 +75,7 @@ func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
-	loginInfo := user.User{}
+	loginInfo := user.Login{}
 
 	err := json.NewDecoder(r.Body).Decode(&loginInfo)
 	if err != nil {
@@ -135,4 +135,8 @@ func (p *Pancarte) validateJWTHandler(protectedPage http.HandlerFunc) http.Handl
 
 		protectedPage(w, r.WithContext(context))
 	})
+}
+
+func (p *Pancarte) addUserHandler(w http.ResponseWriter, r *http.Request) {
+
 }
