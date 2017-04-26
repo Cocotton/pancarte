@@ -25,12 +25,7 @@ type Login struct {
 
 // AddUser adds a giving user to the database
 func AddUser(collection *mgo.Collection, user User) error {
-	err := validateUser(user)
-	if err != nil {
-		return err
-	}
-
-	err = collection.Insert(user)
+	err := collection.Insert(user)
 	if err != nil {
 		return err
 	}
@@ -39,8 +34,8 @@ func AddUser(collection *mgo.Collection, user User) error {
 }
 
 // ValidateUser makes sure no fields are empty in the User object
-func validateUser(user User) error {
-	r := reflect.ValueOf(user).Elem()
+func ValidateUser(user User) error {
+	r := reflect.ValueOf(&user).Elem()
 
 	for i := 0; i < r.NumField(); i++ {
 		if r.Field(i).Len() == 0 {
