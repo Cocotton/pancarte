@@ -2,6 +2,7 @@ package pancarte
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -49,6 +50,40 @@ func (p *Pancarte) addDoorHandler(w http.ResponseWriter, r *http.Request) {
 	helpers.SuccessWithJSON(w, "Succesfully created door with id: "+newDoor.ID, http.StatusCreated)
 }
 
+func (p *Pancarte) addUserHandler(w http.ResponseWriter, r *http.Request) {
+	session := p.DBSession.Copy()
+	defer session.Close()
+
+	newUser := user.User{}
+	err := json.NewDecoder(r.Body).Decode(&newUser)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "User object is malformed.", http.StatusBadRequest)
+		return
+	}
+
+	err = user.ValidateUser(newUser)
+	if err != nil {
+		helpers.ErrorWithText(w, errors.New("Error adding new user."), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "Unable to create new user.", http.StatusInternalServerError)
+		return
+	}
+	newUser.Password = string(hash)
+
+	collection := session.DB(p.DBName).C(p.DBUserCollection)
+	err = user.AddUser(collection, newUser)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "Unable to create new user.", http.StatusInternalServerError)
+		return
+	}
+
+	helpers.SuccessWithJSON(w, "Succesfully created user with username: "+newUser.Username, http.StatusCreated)
+}
+
 func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	doorID := vars["doorID"]
@@ -75,7 +110,7 @@ func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
-	loginInfo := user.User{}
+	loginInfo := user.Login{}
 
 	err := json.NewDecoder(r.Body).Decode(&loginInfo)
 	if err != nil {
