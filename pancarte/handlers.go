@@ -63,7 +63,7 @@ func (p *Pancarte) addUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = user.ValidateUser(newUser)
 	if err != nil {
-		helpers.ErrorWithText(w, errors.New("Error adding new user."), err.Error(), http.StatusBadRequest)
+		helpers.ErrorWithText(w, errors.New("Error validating new user."), err.Error(), http.StatusBadRequest)
 		return
 	}
 
