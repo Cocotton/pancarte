@@ -37,6 +37,7 @@ func (p *Pancarte) InitDB(host string, dbName string) {
 	p.DBSession.SetMode(mgo.Monotonic, true)
 
 	p.initDoorIndex()
+	p.initUserIndex()
 }
 
 func (p *Pancarte) initDoorIndex() {
@@ -48,11 +49,26 @@ func (p *Pancarte) initDoorIndex() {
 		Sparse:     true,
 	}
 
-	c := p.DBSession.DB(p.DBName).C("doors")
-
+	c := p.DBSession.DB(p.DBName).C(p.DBDoorCollection)
 	err := c.EnsureIndex(index)
 	if err != nil {
-		handleFatalInitError("Can ensure the doors collection indexes.", err)
+		handleFatalInitError("Can't ensure the doors collection index.", err)
+	}
+}
+
+func (p *Pancarte) initUserIndex() {
+	index := mgo.Index{
+		Key:        []string{"username"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+
+	c := p.DBSession.DB(p.DBName).C(p.DBUserCollection)
+	err := c.EnsureIndex(index)
+	if err != nil {
+		handleFatalInitError("Can't ensure the users collection index", err)
 	}
 }
 
