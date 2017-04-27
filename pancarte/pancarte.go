@@ -37,6 +37,7 @@ func (p *Pancarte) InitDB(host string, dbName string) {
 	p.DBSession.SetMode(mgo.Monotonic, true)
 
 	p.initDoorIndex()
+	p.initUserIndex()
 }
 
 func (p *Pancarte) initDoorIndex() {
