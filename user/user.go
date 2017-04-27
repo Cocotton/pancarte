@@ -25,7 +25,12 @@ type Login struct {
 
 // AddUser adds a giving user to the database
 func AddUser(collection *mgo.Collection, user User) error {
-	err := collection.Insert(user)
+	err := ValidateUser(user)
+	if err != nil {
+		return err
+	}
+
+	err = collection.Insert(user)
 	if err != nil {
 		return err
 	}

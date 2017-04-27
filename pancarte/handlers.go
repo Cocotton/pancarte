@@ -24,7 +24,7 @@ func (p *Pancarte) addDoorHandler(w http.ResponseWriter, r *http.Request) {
 	newDoor := door.Door{}
 	err := json.NewDecoder(r.Body).Decode(&newDoor)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "Door object is malformed.", http.StatusBadRequest)
+		helpers.ErrorWithText(w, err, "Door object is malformed", http.StatusBadRequest)
 		return
 	}
 
@@ -36,14 +36,14 @@ func (p *Pancarte) addDoorHandler(w http.ResponseWriter, r *http.Request) {
 
 	newDoor.ID, err = helpers.MongoGetNextID(session, p.DBName, p.DBCountersCollection, p.DBDoorCounterID)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "Database error.", http.StatusInternalServerError)
+		helpers.ErrorWithText(w, err, "Database error", http.StatusInternalServerError)
 		return
 	}
 
 	collection := session.DB(p.DBName).C(p.DBDoorCollection)
 	err = collection.Insert(newDoor)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "Database error.", http.StatusInternalServerError)
+		helpers.ErrorWithText(w, err, "Database error", http.StatusInternalServerError)
 		return
 	}
 
@@ -57,19 +57,19 @@ func (p *Pancarte) addUserHandler(w http.ResponseWriter, r *http.Request) {
 	newUser := user.User{}
 	err := json.NewDecoder(r.Body).Decode(&newUser)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "User object is malformed.", http.StatusBadRequest)
+		helpers.ErrorWithText(w, err, "User object is malformed", http.StatusBadRequest)
 		return
 	}
 
 	err = user.ValidateUser(newUser)
 	if err != nil {
-		helpers.ErrorWithText(w, errors.New("Error adding new user."), err.Error(), http.StatusBadRequest)
+		helpers.ErrorWithText(w, errors.New("Error validating new user"), err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "Unable to create new user.", http.StatusInternalServerError)
+		helpers.ErrorWithText(w, err, "Unable to create new user", http.StatusInternalServerError)
 		return
 	}
 	newUser.Password = string(hash)
@@ -77,7 +77,7 @@ func (p *Pancarte) addUserHandler(w http.ResponseWriter, r *http.Request) {
 	collection := session.DB(p.DBName).C(p.DBUserCollection)
 	err = user.AddUser(collection, newUser)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "Unable to create new user.", http.StatusInternalServerError)
+		helpers.ErrorWithText(w, err, "Unable to create new user", http.StatusInternalServerError)
 		return
 	}
 
@@ -102,7 +102,7 @@ func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := json.Marshal(fetchedDoor)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "Problem with fetched door.", http.StatusInternalServerError)
+		helpers.ErrorWithText(w, err, "Problem with fetched door", http.StatusInternalServerError)
 		return
 	}
 
