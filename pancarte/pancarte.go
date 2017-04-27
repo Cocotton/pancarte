@@ -65,7 +65,7 @@ func (p *Pancarte) initUserIndex() {
 		Sparse:     true,
 	}
 
-	c := p.DBSession.DB(p.DBName).C(p.DBDoorCollection)
+	c := p.DBSession.DB(p.DBName).C(p.DBUserCollection)
 	err := c.EnsureIndex(index)
 	if err != nil {
 		handleFatalInitError("Can't ensure the users collection index", err)
