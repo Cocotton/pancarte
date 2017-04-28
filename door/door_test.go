@@ -1,22 +1,36 @@
 package door
 
 import (
-	"errors"
 	"testing"
 
+	"github.com/cocotton/pancarte/location"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateDoor(t *testing.T) {
 	assert := assert.New(t)
+	loc := location.Location{
+		Latitude:    45.494660,
+		Longitude:   -73.583008,
+		Country:     "Canada",
+		Province:    "Qc",
+		City:        "Montréal",
+		StreetName:  "Rue Saint-Marc",
+		CivicNumber: "2295",
+		PostalCode:  "H3H2G9",
+	}
+
 	var validateDoorTests = []struct {
 		door        *Door
-		expected    error
 		expectError bool
 	}{
-		{&Door{"1", "1 Road", "House", "500$", "John Smith", "123-456-7890"}, nil, false},
-		{&Door{"", "1 Road", "House", "500$", "John Smith", "123-456-7890"}, nil, false},
-		{&Door{"1", "1 Road", "", "500$", "John Smith", "123-456-7890"}, errors.New("Missing field."), true},
+		{&Door{"1", "House", "500$", "John Smith", "123-456-7890", loc}, false},
+		{&Door{"", "House", "500$", "John Smith", "123-456-7890", loc}, false},
+		{&Door{"1", "House", "500$", "John Smith", "", loc}, true},
+		{&Door{"1", "House", "500$", "", "123-456-7890", loc}, true},
+		{&Door{"1", "House", "", "John Smith", "123-456-7890", loc}, true},
+		{&Door{"1", "", "500$", "John Smith", "123-456-7890", loc}, true},
+		{&Door{"1", "", "", "", "", loc}, true},
 	}
 
 	for _, test := range validateDoorTests {
@@ -24,7 +38,7 @@ func TestValidateDoor(t *testing.T) {
 		if test.expectError {
 			assert.Error(actual, "Expected an error. None was returned.")
 		} else {
-			assert.Equal(nil, actual, "Did not expected error. Received one.")
+			assert.NoError(actual, "Did not expected error. Received one.")
 		}
 	}
 }
