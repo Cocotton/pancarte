@@ -22,16 +22,16 @@ func ValidateDoor(door *Door) error {
 	emptyFields := []string{}
 
 	if door.Description == "" {
-		emptyFields = append(emptyFields, "description")
+		emptyFields = append(emptyFields, "Description")
 	}
 	if door.Price == "" {
-		emptyFields = append(emptyFields, "price")
+		emptyFields = append(emptyFields, "Price")
 	}
 	if door.OwnerName == "" {
-		emptyFields = append(emptyFields, "owner's name")
+		emptyFields = append(emptyFields, "Owner's name")
 	}
 	if door.OwnerPhone == "" {
-		emptyFields = append(emptyFields, "owner's phone")
+		emptyFields = append(emptyFields, "Owner's phone")
 	}
 	if len(emptyFields) > 0 {
 		return errors.New("Empty fields: " + strings.Join(emptyFields, ","))
