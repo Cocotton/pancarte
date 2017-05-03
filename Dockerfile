@@ -1,6 +1,7 @@
-FROM golang:1.7.5-alpine3.5
+FROM golang:1.8
 
-RUN apk update && apk add --no-cache git
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+	&& rm -rf /var/lib/apt/lists/*
 
 COPY . $GOPATH/src/github.com/cocotton/pancarte
 RUN go get github.com/cocotton/pancarte
