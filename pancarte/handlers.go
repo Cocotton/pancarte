@@ -109,6 +109,10 @@ func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
 	helpers.SuccessWithJSON(w, string(res), http.StatusOK)
 }
 
+func (p *Pancarte) healthHandler(w http.ResponseWriter, r *http.Request) {
+	helpers.SuccessWithJSON(w, "Healthy", http.StatusOK)
+}
+
 func (p *Pancarte) loginHandler(w http.ResponseWriter, r *http.Request) {
 	loginInfo := user.Login{}
 
