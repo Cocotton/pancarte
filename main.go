@@ -10,12 +10,12 @@ import (
 func main() {
 	p := pancarte.Pancarte{}
 
-	p.InitDB("localhost", "pancarte")
+	p.InitDB(loadEnvVar("PANCARTE_DB_HOST"), loadEnvVar("PANCARTE_DB_NAME"))
 	p.InitRouter()
-	p.SetJWTSecret(loadJWTSecret())
-	http.ListenAndServe(":8080", p.Router)
+	p.SetJWTSecret(loadEnvVar("PANCARTE_JWT_SECRET"))
+	http.ListenAndServe(":"+loadEnvVar("PANCARTE_PORT"), p.Router)
 }
 
-func loadJWTSecret() string {
-	return os.Getenv("PANCARTE_JWT_SECRET")
+func loadEnvVar(variable string) string {
+	return os.Getenv(variable)
 }
