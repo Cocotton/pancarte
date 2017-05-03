@@ -11,4 +11,4 @@ ENV PANCARTE_DB_NAME    pancarte
 ENV PANCARTE_PORT       somePort
 ENV PANCARTE_JWT_SECRET someSecret
 
-RUN $GOPATH/bin/pancarte
+ENTRYPOINT ["$GOPATH/bin/pancarte"]
