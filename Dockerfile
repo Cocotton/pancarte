@@ -6,6 +6,9 @@ COPY  . $GOPATH/src/github.com/cocotton/pancarte
 RUN go get github.com/cocotton/pancarte
 RUN go install github.com/cocotton/pancarte
 
+ENV PANCARTE_DB_HOST    someHost
+ENV PANCARTE_DB_NAME    pancarte
+ENV PANCARTE_PORT       somePort
 ENV PANCARTE_JWT_SECRET someSecret
 
 RUN $GOPATH/bin/pancarte
