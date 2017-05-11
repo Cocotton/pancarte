@@ -9,12 +9,12 @@ import (
 
 // Door is a struct containing all the data concerning a Door
 type Door struct {
-	ID          string `json:"id"`
-	Description string `json:"description"`
-	Price       string `json:"price"`
-	OwnerName   string `json:"ownerName"`
-	OwnerPhone  string `json:"ownerPhone"`
-	Location    location.Location
+	ID          string            `json:"id"`
+	Description string            `json:"description"`
+	Price       string            `json:"price"`
+	OwnerName   string            `json:"ownerName"`
+	OwnerPhone  string            `json:"ownerPhone"`
+	Location    location.Location `json:"location"`
 }
 
 // ValidateDoor makes sure no fields are empty in the Door object, execpt for ID.
