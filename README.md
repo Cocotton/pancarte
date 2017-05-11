@@ -21,3 +21,6 @@ You can also provide the environment variables while calling the `docker run` co
 You'll still need a MongoDB instance running somewhere.
 
 You do not need to have golang setup locally to run this image. The image produced by this Dockerfile is not the one that's going to get deployed by Concourse.
+
+## Note
+The image version and name deployed on Concourse can be found in the IMAGE and VERSION files
