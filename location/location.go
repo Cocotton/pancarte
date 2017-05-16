@@ -56,3 +56,20 @@ func ValidateLocation(location Location) error {
 	}
 	return nil
 }
+
+// ValidateGeoLocation makes sure no fields are empty in the GeoLocation object.
+func ValidateGeoLocation(geoLocation GeoLocation) error {
+	emptyFields := []string{}
+
+	if geoLocation.Type == "" {
+		emptyFields = append(emptyFields, "GeoLocation Type")
+	}
+	if len(geoLocation.Coordinates) < 2 {
+		emptyFields = append(emptyFields, "GeoLocation Coordinates")
+	}
+
+	if len(emptyFields) > 0 {
+		return errors.New("Empty fields: " + strings.Join(emptyFields, ","))
+	}
+	return nil
+}

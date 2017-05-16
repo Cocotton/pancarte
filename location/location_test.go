@@ -33,3 +33,25 @@ func TestValidateLocation(t *testing.T) {
 		}
 	}
 }
+
+func TestValidateGeoLocation(t *testing.T) {
+	assert := assert.New(t)
+
+	var validateGeoLocationTests = []struct {
+		geoLocation GeoLocation
+		expectError bool
+	}{
+		{GeoLocation{"Point", []float64{-73.583008, 45.494660}}, false},
+		{GeoLocation{"Point", []float64{45.494660}}, true},
+		{GeoLocation{"", []float64{-73.583008, 45.494660}}, true},
+	}
+
+	for _, test := range validateGeoLocationTests {
+		actual := ValidateGeoLocation(test.geoLocation)
+		if test.expectError {
+			assert.Error(actual, "Expected an error. None was returned.")
+		} else {
+			assert.NoError(actual, "Did not expected error. Received one.")
+		}
+	}
+}
