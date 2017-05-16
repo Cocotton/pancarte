@@ -7,14 +7,13 @@ import (
 
 // Location contains all the informations used to locate a Door
 type Location struct {
-	Latitude    float64 `json:"latitude"`
-	Longitude   float64 `json:"longitude"`
-	Country     string  `json:"country"`
-	Province    string  `json:"province"`
-	City        string  `json:"city"`
-	StreetName  string  `json:"streetname"`
-	CivicNumber string  `json:"civicnumber"`
-	PostalCode  string  `json:"postalcode"`
+	GeoLocation GeoLocation `json:"geolocation"`
+	Country     string      `json:"country"`
+	Province    string      `json:"province"`
+	City        string      `json:"city"`
+	StreetName  string      `json:"streetname"`
+	CivicNumber string      `json:"civicnumber"`
+	PostalCode  string      `json:"postalcode"`
 }
 
 // GeoLocation contains a Geographic position
@@ -27,11 +26,11 @@ type GeoLocation struct {
 func ValidateLocation(location Location) error {
 	emptyFields := []string{}
 
-	if location.Latitude == 0 {
-		emptyFields = append(emptyFields, "Latitude")
+	if location.GeoLocation.Type == "" {
+		emptyFields = append(emptyFields, "GeoLocation Type")
 	}
-	if location.Longitude == 0 {
-		emptyFields = append(emptyFields, "Longitude")
+	if len(location.GeoLocation.Coordinates) < 2 {
+		emptyFields = append(emptyFields, "GeoLocation Coordinates")
 	}
 	if location.Country == "" {
 		emptyFields = append(emptyFields, "Country")
