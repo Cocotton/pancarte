@@ -37,6 +37,7 @@ func (p *Pancarte) InitDB(host string, dbName string) {
 	p.DBSession.SetMode(mgo.Monotonic, true)
 
 	p.initDoorIndex()
+	p.initGeoLocationIndex()
 	p.initUserIndex()
 }
 
@@ -53,6 +54,22 @@ func (p *Pancarte) initDoorIndex() {
 	err := c.EnsureIndex(index)
 	if err != nil {
 		handleFatalInitError("Can't ensure the doors collection index.", err)
+	}
+}
+
+func (p *Pancarte) initGeoLocationIndex() {
+	index := mgo.Index{
+		Key:        []string{"$2dsphere:location.geolocation"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+
+	c := p.DBSession.DB(p.DBName).C(p.DBDoorCollection)
+	err := c.EnsureIndex(index)
+	if err != nil {
+		handleFatalInitError("Can't ensure the geolocation index.", err)
 	}
 }
 
