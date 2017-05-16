@@ -11,7 +11,7 @@ func TestValidateDoor(t *testing.T) {
 	assert := assert.New(t)
 
 	loc := location.Location{
-		GeoLocation: location.GeoLocation{Type: "point", Coordinates: []float64{-73.583008, 45.494660}},
+		GeoLocation: location.GeoLocation{Type: "Point", Coordinates: []float64{-73.583008, 45.494660}},
 		Country:     "Canada",
 		Province:    "Qc",
 		City:        "Montréal",
