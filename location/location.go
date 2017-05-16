@@ -17,6 +17,12 @@ type Location struct {
 	PostalCode  string  `json:"postalcode"`
 }
 
+// GeoLocation contains a Geographic position
+type GeoLocation struct {
+	Type        string    `json:"geotype"`
+	Coordinates []float64 `json:"geocoordinates"`
+}
+
 // ValidateLocation makes sure no fields are empty in the Location object.
 func ValidateLocation(location Location) error {
 	emptyFields := []string{}
