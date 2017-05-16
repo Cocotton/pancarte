@@ -33,9 +33,10 @@ func ValidateDoor(door *Door) error {
 	if door.OwnerPhone == "" {
 		emptyFields = append(emptyFields, "Owner's phone")
 	}
+
 	if len(emptyFields) > 0 {
 		return errors.New("Empty fields: " + strings.Join(emptyFields, ","))
 	}
 
-	return nil
+	return location.ValidateLocation(door.Location)
 }
