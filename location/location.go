@@ -64,7 +64,7 @@ func ValidateGeoLocation(geoLocation GeoLocation) error {
 	if geoLocation.Type == "" {
 		emptyFields = append(emptyFields, "GeoLocation Type")
 	}
-	if len(geoLocation.Coordinates) < 2 {
+	if len(geoLocation.Coordinates) != 2 {
 		emptyFields = append(emptyFields, "GeoLocation Coordinates")
 	}
 
