@@ -89,15 +89,18 @@ func (p *Pancarte) getNearestDoorsHandler(w http.ResponseWriter, r *http.Request
 	session := p.DBSession.Copy()
 	defer session.Close()
 
-	geoLocation := location.GeoLocation{}
-	err := json.NewDecoder(r.Body).Decode(&geoLocation)
+	geoLocationQuery := location.GeoLocationQuery{}
+	geoLocationQuery.MinDistance = 0
+	geoLocationQuery.MaxDistance = 100
+	geoLocationQuery.GeoLocation.Type = "Point"
+
+	err := json.NewDecoder(r.Body).Decode(&geoLocationQuery)
 	if err != nil {
-		helpers.ErrorWithText(w, err, "GeoLocation object is malformed", http.StatusBadRequest)
+		helpers.ErrorWithText(w, err, "GeoLocationQuery object is malformed", http.StatusBadRequest)
 		return
 	}
 
-	geoLocation.Type = "Point"
-	err = location.ValidateGeoLocation(geoLocation)
+	err = location.ValidateGeoLocation(geoLocationQuery.GeoLocation)
 	if err != nil {
 		helpers.ErrorWithText(w, errors.New("Error validating GeoLocation"), err.Error(), http.StatusBadRequest)
 		return
@@ -110,10 +113,11 @@ func (p *Pancarte) getNearestDoorsHandler(w http.ResponseWriter, r *http.Request
 		"location.geolocation": bson.M{
 			"$nearSphere": bson.M{
 				"$geometry": bson.M{
-					"type":        "Point",
-					"coordinates": geoLocation.Coordinates,
+					"type":        geoLocationQuery.GeoLocation.Type,
+					"coordinates": geoLocationQuery.GeoLocation.Coordinates,
 				},
-				"$maxDistance": 100,
+				"$minDistance": geoLocationQuery.MinDistance,
+				"$maxDistance": geoLocationQuery.MaxDistance,
 			},
 		},
 	}).All(&nearDoors)
