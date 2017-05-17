@@ -22,6 +22,13 @@ type GeoLocation struct {
 	Coordinates []float64 `json:"geocoordinates"`
 }
 
+// GeoLocationQuery contains the necessary informations to query the database for the nearest Door
+type GeoLocationQuery struct {
+	GeoLocation GeoLocation `json:"geolocation"`
+	MinDistance float64     `json:"mindistance"`
+	MaxDistance float64     `json:"maxdistance"`
+}
+
 // ValidateLocation makes sure no fields are empty in the Location object.
 func ValidateLocation(location Location) error {
 	emptyFields := []string{}
