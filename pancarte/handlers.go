@@ -13,6 +13,7 @@ import (
 	"github.com/cocotton/pancarte/authentication"
 	"github.com/cocotton/pancarte/door"
 	"github.com/cocotton/pancarte/helpers"
+	"github.com/cocotton/pancarte/location"
 	"github.com/cocotton/pancarte/user"
 	"github.com/gorilla/mux"
 )
@@ -82,6 +83,48 @@ func (p *Pancarte) addUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.SuccessWithJSON(w, "Succesfully created user with username: "+newUser.Username, http.StatusCreated)
+}
+
+func (p *Pancarte) getNearestDoorsHandler(w http.ResponseWriter, r *http.Request) {
+	session := p.DBSession.Copy()
+	defer session.Close()
+
+	geoLocation := location.GeoLocation{}
+	err := json.NewDecoder(r.Body).Decode(&geoLocation)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "GeoLocation object is malformed", http.StatusBadRequest)
+		return
+	}
+
+	geoLocation.Type = "Point"
+	err = location.ValidateGeoLocation(geoLocation)
+	if err != nil {
+		helpers.ErrorWithText(w, errors.New("Error validating GeoLocation"), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	collection := session.DB(p.DBName).C(p.DBDoorCollection)
+
+	nearDoors := []door.Door{}
+	err = collection.Find(bson.M{
+		"location.geolocation": bson.M{
+			"$nearSphere": bson.M{
+				"$geometry": bson.M{
+					"type":        "Point",
+					"coordinates": geoLocation.Coordinates,
+				},
+				"$maxDistance": 100,
+			},
+		},
+	}).All(&nearDoors)
+
+	res, err := json.Marshal(nearDoors)
+	if err != nil {
+		helpers.ErrorWithText(w, err, "Problem with fetched nearest doors", http.StatusInternalServerError)
+		return
+	}
+
+	helpers.SuccessWithJSON(w, string(res), http.StatusOK)
 }
 
 func (p *Pancarte) getDoorHandler(w http.ResponseWriter, r *http.Request) {
