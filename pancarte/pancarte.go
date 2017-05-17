@@ -96,6 +96,7 @@ func (p *Pancarte) InitRouter() {
 	p.Router.HandleFunc("/addDoor", p.validateJWTHandler(p.addDoorHandler)).Methods("POST")
 	p.Router.HandleFunc("/addUser", p.validateJWTHandler(p.addUserHandler)).Methods("POST")
 	p.Router.HandleFunc("/getDoor/{doorID}", p.getDoorHandler).Methods("GET")
+	p.Router.HandleFunc("/getNearestDoors", p.getNearestDoorsHandler).Methods("POST")
 	p.Router.HandleFunc("/health", p.healthHandler).Methods("GET")
 	p.Router.HandleFunc("/login", p.loginHandler).Methods("POST")
 	p.Router.HandleFunc("/logout", p.logoutHandler).Methods("GET")
