@@ -24,13 +24,14 @@ func TestValidateDoor(t *testing.T) {
 		door        *Door
 		expectError bool
 	}{
-		{&Door{"1", "House", "500$", "John Smith", "123-456-7890", loc}, false},
-		{&Door{"", "House", "500$", "John Smith", "123-456-7890", loc}, false},
-		{&Door{"1", "House", "500$", "John Smith", "", loc}, true},
-		{&Door{"1", "House", "500$", "", "123-456-7890", loc}, true},
-		{&Door{"1", "House", "", "John Smith", "123-456-7890", loc}, true},
-		{&Door{"1", "", "500$", "John Smith", "123-456-7890", loc}, true},
-		{&Door{"1", "", "", "", "", loc}, true},
+		{&Door{"1", "House", "500", "CAD", "House description", "John Smith", "123-456-7890", loc}, false},
+		{&Door{"", "House", "500", "CAD", "House description", "John Smith", "123-456-7890", loc}, false},
+		{&Door{"", "", "500", "CAD", "House description", "John Smith", "123-456-7890", loc}, true},
+		{&Door{"", "House", "", "CAD", "House description", "John Smith", "123-456-7890", loc}, true},
+		{&Door{"", "House", "500", "", "House description", "John Smith", "123-456-7890", loc}, true},
+		{&Door{"", "House", "500", "CAD", "", "John Smith", "123-456-7890", loc}, true},
+		{&Door{"", "House", "500", "CAD", "House description", "", "123-456-7890", loc}, true},
+		{&Door{"", "House", "500", "CAD", "House description", "John Smith", "", loc}, true},
 	}
 
 	for _, test := range validateDoorTests {
