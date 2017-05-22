@@ -10,8 +10,10 @@ import (
 // Door is a struct containing all the data concerning a Door
 type Door struct {
 	ID          string            `json:"id"`
-	Description string            `json:"description"`
+	Title       string            `json:"title"`
 	Price       string            `json:"price"`
+	Currency    string            `json:"currency"`
+	Description string            `json:"description"`
 	OwnerName   string            `json:"ownerName"`
 	OwnerPhone  string            `json:"ownerPhone"`
 	Location    location.Location `json:"location"`
@@ -21,11 +23,17 @@ type Door struct {
 func ValidateDoor(door *Door) error {
 	emptyFields := []string{}
 
-	if door.Description == "" {
-		emptyFields = append(emptyFields, "Description")
+	if door.Title == "" {
+		emptyFields = append(emptyFields, "Title")
 	}
 	if door.Price == "" {
 		emptyFields = append(emptyFields, "Price")
+	}
+	if door.Currency == "" {
+		emptyFields = append(emptyFields, "Currency")
+	}
+	if door.Description == "" {
+		emptyFields = append(emptyFields, "Description")
 	}
 	if door.OwnerName == "" {
 		emptyFields = append(emptyFields, "Owner's name")
